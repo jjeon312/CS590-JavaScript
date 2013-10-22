@@ -238,6 +238,7 @@ pointFeatures.push(pointFeature);
 
    map.addLayers([tms,pointsLayer]);
    map.setCenter([centerLon, centerLat], 2);
+   
 }
 
 
@@ -275,7 +276,7 @@ var pointList = [];
 	       linearRing.move( moveX, moveY );		   
 		   
 		   // Resizing the plane
-		   linearRing.resize(0.00001, point);
+		   linearRing.resize(0.0000025, point);
            
 		   
 		   var polygonFeature = new OpenLayers.Feature.Vector(
