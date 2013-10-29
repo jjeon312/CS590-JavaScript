@@ -93,6 +93,8 @@ var top = 29.1393509;
        maxExtent: new OpenLayers.Bounds(adjLeft, adjBottom, adjRight, adjTop),
        //maxExtent: new OpenLayers.Bounds(left, bottom, right, top),
        numZoomLevels: 6,
+	   projection: "EPSG:900913",
+   displayProjection: new OpenLayers.Projection("EPSG:4326")
    };
 
    //name of div + options above
@@ -100,6 +102,23 @@ var top = 29.1393509;
    'wissmap',
    options
    );
+   
+   /*
+   map.addControl(
+                new OpenLayers.Control.MousePosition({
+                    prefix: '<a target="_blank" ' +
+                        'href="http://spatialreference.org/ref/epsg/4326/">' +
+                        'EPSG:4326</a> coordinates: ',
+                    separator: ' | ',
+                    numDigits: 2,
+                    emptyString: 'Mouse is not over map.'
+                })
+            );
+map.events.register("mousemove", map, function(e) {
+                var position = this.events.getMousePosition(e);
+                OpenLayers.Util.getElement("coords").innerHTML = position;
+            });
+   */
 
    //tms - tile mapping system
 //using TMS because we cannot, cannot use an external API that connects to the internet .... like Google maps
@@ -182,7 +201,32 @@ style = new OpenLayers.Style(
    "default": style
    });
 
-   var pointsLayer = new OpenLayers.Layer.Vector("Targets", {styleMap: sm});
+   var pointsLayer = new OpenLayers.Layer.Vector("Targets", {styleMap: sm,
+   
+   
+      eventListeners:{
+            'featureselected':function(evt){
+			
+                var feature = evt.feature;
+                var popup = new OpenLayers.Popup.FramedCloud("popup",
+                    new OpenLayers.LonLat(feature.attributes.longitude, feature.attributes.latitude),
+                    null,
+                    "<div style='font-size:.8em'>Longitude: " + feature.attributes.longitude +"<br>Latitude: " + feature.attributes.latitude+"</div>",
+                    null,
+                    true
+                );
+                feature.popup = popup;
+                map.addPopup(popup);
+            },
+            'featureunselected':function(evt){
+                var feature = evt.feature;
+                map.removePopup(feature.popup);
+                feature.popup.destroy();
+                feature.popup = null;
+            }
+        }
+   }
+   );
 
 
    //px are right/left
@@ -219,7 +263,6 @@ var pointList = [];
 var polygonFeature=returnPolygonFeature(pointGeometry);
 pointFeatures.push(polygonFeature);
 
-
 /*
 
 pointFeature = new OpenLayers.Feature.Vector(OpenLayers.Geometry.Polygon.createRegularPolygon(
@@ -231,12 +274,25 @@ pointGeometry,
 pointFeatures.push(pointFeature);
 */
    }
+   
+
+     
 
 
+	 
    pointsLayer.addFeatures(pointFeatures);
 
+   var control = new OpenLayers.Control.SelectFeature(pointsLayer, {
+                hover: true});
 
+	
    map.addLayers([tms,pointsLayer]);
+   
+   
+  map.addControl(control);
+control.activate();
+	
+
    map.setCenter([centerLon, centerLat], 2);
    
 }
@@ -278,9 +334,13 @@ var pointList = [];
 		   // Resizing the plane
 		   linearRing.resize(0.0000025, point);
            
-		   
+		   var attributes = {
+           
+             'longitude': point.x,
+             'latitude': point.y
+            };
 		   var polygonFeature = new OpenLayers.Feature.Vector(
-               new OpenLayers.Geometry.Polygon([linearRing]));
+               new OpenLayers.Geometry.Polygon([linearRing]), attributes);
              
 			 return polygonFeature;
 
