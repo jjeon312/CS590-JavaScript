@@ -14,3 +14,17 @@ http://openlayers.org/dev/examples/resize-features.html
 Popup Example:
 
 http://dev.openlayers.org/releases/OpenLayers-2.13.1/examples/light-basic.html
+
+JSON objects to be passed in:
+
+Pilot:
+	-PilotID
+	-impact points(longlat)
+	-Color
+Targets:
+	-Name
+	-longlat
+	-shapeID
+Shapes:
+	-shapeID
+	-coords
