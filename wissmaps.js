@@ -219,17 +219,21 @@ style = new OpenLayers.Style(
 					onPopupClose
                 );
                 feature.popup = popup;
+				 popup.feature = feature;
                 map.addPopup(popup);
-            },
-            'featureunselected':function(evt){
-			
-                var feature = evt.feature;
-				
-				
-                map.removePopup(feature.popup);
-                feature.popup.destroy();
-                feature.popup = null;
             }
+            ,'featureunselected':function(evt){
+			
+              feature = evt.feature;
+    if (feature.popup) {
+        popup.feature = null;
+        map.removePopup(feature.popup);
+        feature.popup.destroy();
+        feature.popup = null;
+    }
+            }
+			
+			
         }
    }
    );
@@ -288,22 +292,21 @@ pointFeatures.push(pointFeature);
 	 
    pointsLayer.addFeatures(pointFeatures);
 
-   var control = new OpenLayers.Control.SelectFeature(pointsLayer, {
-                hover: true});
+   selectControl = new OpenLayers.Control.SelectFeature(pointsLayer);
 
 	
    map.addLayers([tms,pointsLayer]);
    
    
-  map.addControl(control);
-control.activate();
+  map.addControl(selectControl);
+selectControl.activate();
 	
 
    map.setCenter([centerLon, centerLat], 2);
    
 }
 
-
+var selectControl;
 
 var xPoint = [ 0, 9, 36, 36, 46, 65, 63, 77, 86, 80, 91, 91, 97,
 109, 114, 112, 115, 112, 114, 109, 97, 91, 91, 80, 86, 77, 63, 65,
@@ -352,5 +355,6 @@ var pointList = [];
 
 }
  function onPopupClose(evt) {
-            selectControl.unselect(selectedFeature);
-        }
+    // 'this' is the popup.
+    selectControl.unselect(this.feature);
+}
