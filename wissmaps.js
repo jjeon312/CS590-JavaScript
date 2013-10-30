@@ -190,7 +190,7 @@ style = new OpenLayers.Style(
        context: {
            calculateRadius: function(f){
                var resize = 2.25*f.layer.map.getZoom();
-               console.log(resize);
+               console.log("resize: "+resize);
                return resize;
                }
            }
@@ -208,18 +208,24 @@ style = new OpenLayers.Style(
             'featureselected':function(evt){
 			
                 var feature = evt.feature;
+				
                 var popup = new OpenLayers.Popup.FramedCloud("popup",
-                    new OpenLayers.LonLat(feature.attributes.longitude, feature.attributes.latitude),
+                     feature.geometry.getBounds().getCenterLonLat(),
+					//new OpenLayers.LonLat(feature.attributes.longitude, feature.attributes.latitude),
                     null,
                     "<div style='font-size:.8em'>Longitude: " + feature.attributes.longitude +"<br>Latitude: " + feature.attributes.latitude+"</div>",
                     null,
-                    true
+                    true,
+					onPopupClose
                 );
                 feature.popup = popup;
                 map.addPopup(popup);
             },
             'featureunselected':function(evt){
+			
                 var feature = evt.feature;
+				
+				
                 map.removePopup(feature.popup);
                 feature.popup.destroy();
                 feature.popup = null;
@@ -345,3 +351,6 @@ var pointList = [];
 			 return polygonFeature;
 
 }
+ function onPopupClose(evt) {
+            selectControl.unselect(selectedFeature);
+        }
