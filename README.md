@@ -15,17 +15,28 @@ Popup Example:
 
 http://dev.openlayers.org/releases/OpenLayers-2.13.1/examples/light-basic.html
 
-JSON objects to be passed in:
+JSON objects to be passed in:  
 
 Pilot:
-	-PilotID
+  
+	-PilotID  
+	
 	-impact points(longlat)
+	
 	-Color
+	
 Targets:
+
 	-Name
+	
 	-longlat
+	
 	-shapeID
+	
 	-shapeAngle
+	
 Shapes:
+
 	-shapeID
+	
 	-coords
