@@ -25,6 +25,7 @@ Targets:
 	-Name
 	-longlat
 	-shapeID
+	-shapeAngle
 Shapes:
 	-shapeID
 	-coords
