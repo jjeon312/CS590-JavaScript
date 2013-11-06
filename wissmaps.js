@@ -1,5 +1,83 @@
-
+//Global Variables
 var map, pilotImpactLayer, targetLayer;
+var shapeObjects = [{
+  "shapeId": 0,
+  "xValues": [0, 9, 36, 36, 46, 65, 63, 77, 86, 80, 91, 91, 97, 109, 114, 112, 115, 112, 114, 109, 97, 91, 91, 80, 86, 77, 63, 65, 46, 36, 36, 9, 0],
+  "yValues": [0, 4, 5, 8, 8, 24, 24, 35, 35, 7, 6, 4, 3, 15, 15, 1, 0, -1, -15, -15, -3, -4, -6, -7, -35, -35, -24, -24, -8, -8, -5, -4, 0]
+}];
+
+
+var pilotObjects = [{
+
+  "pilotId": 0,
+  "name": "Michael Hsu The Ace Pilot",
+  "impactXValues": [-81.707370, -81.733006],
+  "impactYValues": [29.120065, 29.135575],
+  "color": "#FF0000"
+
+},
+
+{
+
+  "pilotId": 1,
+  "name": "Dr.Jiang Guo The Ultimate Ace Pilot",
+  "impactXValues": [-81.724625, -81.724625, -81.724625, -81.733006, -81.724479, -81.733929],
+  "impactYValues": [29.118087, 29.119, 29.120, 29.135575, 29.114774, 29.093696],
+  "color": "#7CFC00"
+
+}
+
+
+];
+
+
+var pilotColorMap = new Object();
+var styleMap = new OpenLayers.StyleMap({
+  fillOpacity: 1,
+  pointRadius: 6
+});
+
+var lookup = {};
+var selectControl;
+
+//Targets JSON
+var targetObjects = [{
+  "name": "Johnny",
+  "longitude": -81.707370,
+  "latitude": 29.120065,
+  "shapeId": 0,
+  "shapeAngle": 45
+}, {
+  "name": "Tommy",
+  "longitude": -81.724625,
+  "latitude": 29.118087,
+  "shapeId": 0,
+  "shapeAngle": 90
+}, {
+  "name": "Joan",
+  "longitude": -81.733006,
+  "latitude": 29.135575,
+  "shapeId": 0,
+  "shapeAngle": 135
+}, {
+  "name": "Sunny-D",
+  "longitude": -81.724479,
+  "latitude": 29.114774,
+  "shapeId": 0,
+  "shapeAngle": 180
+}, {
+  "name": "George",
+  "longitude": -81.733929,
+  "latitude": 29.093696,
+  "shapeId": 0,
+  "shapeAngle": 225
+}, ];
+
+
+
+
+
+
 
 function loadmap() {
 
@@ -107,92 +185,21 @@ function loadmap() {
     toCenter = top - centerLat;
   }
 
-
-  //lets create some points for testing
-  //obviously in the future these will be real points again passed from C# via JSON
-/*var tgt = [
-    [-81.707370, 29.120065],
-    [-81.724625, 29.118087],
-    [-81.733006, 29.135575],
-    [-81.724479, 29.114774],
-    [-81.733929, 29.093696],
-    [right, top],
-    [left, top],
-    [right, bottom],
-    [left, bottom]
-  ];
-
-*/
-  //Targets JSON
-  var targetObjects = [{
-    "name": "Johnny",
-    "longitude": -81.707370,
-    "latitude": 29.120065,
-    "shapeId": 0,
-    "shapeAngle": 45
-  }, {
-    "name": "Tommy",
-    "longitude": -81.724625,
-    "latitude": 29.118087,
-    "shapeId": 0,
-    "shapeAngle": 90
-  }, {
-    "name": "Joan",
-    "longitude": -81.733006,
-    "latitude": 29.135575,
-    "shapeId": 0,
-    "shapeAngle": 135
-  }, {
-    "name": "Sunny-D",
-    "longitude": -81.724479,
-    "latitude": 29.114774,
-    "shapeId": 0,
-    "shapeAngle": 180
-  }, {
-    "name": "George",
-    "longitude": -81.733929,
-    "latitude": 29.093696,
-    "shapeId": 0,
-    "shapeAngle": 225
-  }, ];
-
-
-  //All we are doing here is some styling. What we want is from far away our targets point to appear tiny
-  //as you zoom in those targets get larger and so do out points
-  //this needs to be cleaned up because we hard coded the 2.25 which is just a magical made up number for this instance
-  //the size should be dyamic with the zoom there is an OpenLayers example on this sort of
-  style = new OpenLayers.Style(
-  OpenLayers.Util.extend(
-  OpenLayers.Feature.Vector.style.default, {
-    pointRadius: "${calculateRadius}"
-  }), {
-    context: {
-      calculateRadius: function(f) {
-        var resize = 2.25 * f.layer.map.getZoom();
-        console.log("resize: " + resize);
-        return resize;
-      }
-    }
-  });
-
-  sm = new OpenLayers.StyleMap({
-    "default": style
-  });
-
+  
+//Layer for pilot
   pilotImpactLayer = new OpenLayers.Layer.Vector("Impacts", {
 
+  //Style Map for target colors based on Pilots
     styleMap: styleMap,
     visibility: false,
 
-   }
+  }
 
 
   );
 
   targetLayer = new OpenLayers.Layer.Vector("Targets", {
-    styleMap: sm,
-
-    //Event listener for feature selection
+       //Event listener for feature selection
     eventListeners: {
       'featureselected': function(evt) {
 
@@ -200,7 +207,7 @@ function loadmap() {
 
         var popup = new OpenLayers.Popup.FramedCloud("popup", feature.geometry.getBounds().getCenterLonLat(),
         //new OpenLayers.LonLat(feature.attributes.longitude, feature.attributes.latitude),
-        null, "<div style='font-size:.8em'>Name: " + feature.attributes.name + "<br>Longitude: " + feature.attributes.longitude + "<br>Latitude: " + feature.attributes.latitude + "</div>", null, true, onPopupClose);
+        null, "<div style='font-size:.8em'>Target Name: " + feature.attributes.name + "<br>Longitude: " + feature.attributes.longitude + "<br>Latitude: " + feature.attributes.latitude + "</div>", null, true, onPopupClose);
         feature.popup = popup;
         popup.feature = feature;
         map.addPopup(popup);
@@ -261,6 +268,7 @@ function loadmap() {
 
   targetLayer.addFeatures(targetPolygonFeatures);
 
+//Create Select control for target layer
   selectControl = new OpenLayers.Control.SelectFeature(targetLayer);
 
 
@@ -274,19 +282,20 @@ function loadmap() {
     currentPilot = pilotObjects[i];
     pilotXValues = currentPilot.impactXValues;
     pilotYValues = currentPilot.impactYValues;
-    pilotColorMap[currentPilot.pilotId]=
-{
-  "name":currentPilot.name,
-    "color":currentPilot.color
-  }
-    lookup[currentPilot.pilotId]={fillColor: currentPilot.color};
+    pilotColorMap[currentPilot.pilotId] = {
+      "name": currentPilot.name,
+      "color": currentPilot.color
+    }
+    lookup[currentPilot.pilotId] = {
+      fillColor: currentPilot.color
+    };
 
     for (var j = 0; j < pilotXValues.length; ++j) {
 
 
       px = pilotXValues[j];
       py = pilotYValues[j];
-      console.log(px+" "+py);
+      console.log(px + " " + py);
       if (rightLeftDirty) {
         distance = centerLon - px;
         push = (distance / toCenter) * offset;
@@ -299,212 +308,136 @@ function loadmap() {
         pointGeometry = new OpenLayers.Geometry.Point(px, adjPy);
       }
 
-var attributes = {
+//Attributes used for style mapping
+      var attributes = {
 
-      'pilotId': currentPilot.pilotId
-    };
+        'pilotId': currentPilot.pilotId
+      };
 
       var polygonImpactFeature = new OpenLayers.Feature.Vector(pointGeometry, attributes);
 
-console.log(polygonImpactFeature);
+      console.log(polygonImpactFeature);
       pilotImpactPolygonFeatures.push(polygonImpactFeature);
 
 
     }
-}
+  }
 
- styleMap.addUniqueValueRules("default", "pilotId", lookup);
-    targetLayer.addFeatures(targetPolygonFeatures);
-    pilotImpactLayer.addFeatures(pilotImpactPolygonFeatures);
-
-
-    map.addLayers([tms, targetLayer, pilotImpactLayer]);
+//Map style using lookup, with the key being pilotId attribute of feature
+  styleMap.addUniqueValueRules("default", "pilotId", lookup);
+  targetLayer.addFeatures(targetPolygonFeatures);
+  pilotImpactLayer.addFeatures(pilotImpactPolygonFeatures);
 
 
-    map.addControl(selectControl);
-    selectControl.activate();
+  map.addLayers([tms, targetLayer, pilotImpactLayer]);
 
 
-    map.setCenter([centerLon, centerLat], 2);
+  map.addControl(selectControl);
+  selectControl.activate();
 
+
+  map.setCenter([centerLon, centerLat], 2);
+
+//creates color legend
   drawLegend();
-  }
-
-  var selectControl;
-
-/*
-var xPoint = [0, 9, 36, 36, 46, 65, 63, 77, 86, 80, 91, 91, 97, 109, 114, 112, 115, 112, 114, 109, 97, 91, 91, 80, 86, 77, 63, 65, 46, 36, 36, 9, 0];
-
-var yPoint = [0, 4, 5, 8, 8, 24, 24, 35, 35, 7, 6, 4, 3, 15, 15, 1, 0, -1, -15, -15, -3, -4, -6, -7, -35, -35, -24, -24, -8, -8, -5, -4, 0];
-*/
-
-
-  var shapeObjects = [{
-    "shapeId": 0,
-    "xValues": [0, 9, 36, 36, 46, 65, 63, 77, 86, 80, 91, 91, 97, 109, 114, 112, 115, 112, 114, 109, 97, 91, 91, 80, 86, 77, 63, 65, 46, 36, 36, 9, 0],
-    "yValues": [0, 4, 5, 8, 8, 24, 24, 35, 35, 7, 6, 4, 3, 15, 15, 1, 0, -1, -15, -15, -3, -4, -6, -7, -35, -35, -24, -24, -8, -8, -5, -4, 0]
-  }];
-
-
-
-  var pilotObjects = [{
-
-    "pilotId": 0,
-    "name": "Michael Hsu The Ace Pilot",
-    "impactXValues": [-81.707370, -81.733006],
-    "impactYValues": [ 29.120065, 29.135575],
-    "color": "#FF0000"
-
-  },
-
-{
-
-    "pilotId": 1,
-    "name": "Dr.Jiang Guo The Ultimate Ace Pilot",
-    "impactXValues": [-81.724625, -81.724625,-81.724625,-81.733006, -81.724479, -81.733929],
-    "impactYValues": [ 29.118087, 29.119,29.120,29.135575, 29.114774, 29.093696],
-    "color": "#7CFC00"
-
-  }
-
-
-
-  ];
-
-/*
-"name": "Tommy",
-    "longitude": -81.724625,
-    "latitude": 29.118087,
-    "shapeId": 0,
-    "shapeAngle": 90
-  }, {
-    "name": "Joan",
-    "longitude": -81.733006,
-    "latitude": 29.135575,
-    "shapeId": 0,
-    "shapeAngle": 135
-  }, {
-    "name": "Sunny-D",
-    "longitude": -81.724479,
-    "latitude": 29.114774,
-    "shapeId": 0,
-    "shapeAngle": 180
-  }, {
-    "name": "George",
-    "longitude": -81.733929,
-    "latitude": 29.093696,
-    "shapeId": 0,
-    "shapeAngle": 225
-
-*/
-
-  var pilotColorMap = new Object();
-   var styleMap = new OpenLayers.StyleMap({
-                fillOpacity: 1,
-                pointRadius: 6
-            });
-
-  var lookup = {
-              
-            };
-  function get(k) {
-    return pilotColorMap[k];
 }
 
-  function returnPolygonFeature(point, targetObject) {
-
-    var pointList = [];
-
-    var maxX = maxY = minX = minY = 0;
-
-    var shapeToDraw;
-    var xPoint;
-    var yPoint;
-    //Get Shape from  shapeId
-    for (var index = 0; index < shapeObjects.length; ++index) {
-      if (shapeObjects[index].shapeId == targetObject.shapeId) {
-
-        shapeToDraw = shapeObjects[index];
-        xPoint = shapeToDraw.xValues;
-        yPoint = shapeToDraw.yValues;
-        break;
-      }
 
 
+//Get method for pilotColorMap
+function get(k) {
+  return pilotColorMap[k];
+}
+
+//Creates target shape polygon feature
+function returnPolygonFeature(point, targetObject) {
+
+  var pointList = [];
+
+  var maxX = maxY = minX = minY = 0;
+
+  var shapeToDraw;
+  var xPoint;
+  var yPoint;
+  //Get Shape from  shapeId
+  for (var index = 0; index < shapeObjects.length; ++index) {
+    if (shapeObjects[index].shapeId == targetObject.shapeId) {
+
+      shapeToDraw = shapeObjects[index];
+      xPoint = shapeToDraw.xValues;
+      yPoint = shapeToDraw.yValues;
+      break;
     }
-/*
-console.log("shape: ");
-console.log(shapeToDraw);
-*/
-    for (var p = 0; p < xPoint.length; ++p) {
-      if (maxX < xPoint[p]) maxX = xPoint[p];
-      if (maxY < yPoint[p]) maxY = yPoint[p];
-      if (minX > xPoint[p]) minX = xPoint[p];
-      if (minY > yPoint[p]) maxY = yPoint[p];
 
-      var newPoint = new OpenLayers.Geometry.Point(point.x + xPoint[p], point.y + yPoint[p]);
-      pointList.push(newPoint);
+
+  }
+
+  for (var p = 0; p < xPoint.length; ++p) {
+    if (maxX < xPoint[p]) maxX = xPoint[p];
+    if (maxY < yPoint[p]) maxY = yPoint[p];
+    if (minX > xPoint[p]) minX = xPoint[p];
+    if (minY > yPoint[p]) maxY = yPoint[p];
+
+    var newPoint = new OpenLayers.Geometry.Point(point.x + xPoint[p], point.y + yPoint[p]);
+    pointList.push(newPoint);
+  }
+  pointList.push(pointList[0]);
+
+  var linearRing = new OpenLayers.Geometry.LinearRing(pointList);
+
+  // Centering the plane to the point 
+  var moveX = -Math.round((maxX + minX) / 2);
+  var moveY = -Math.round((maxY + minY) / 2);
+  linearRing.move(moveX, moveY);
+
+  // Resizing the plane
+  linearRing.resize(0.0000025, point);
+
+  var attributes = {
+
+    'longitude': point.x,
+    'latitude': point.y,
+    'name': targetObject.name
+
+  };
+  var polygonFeature = new OpenLayers.Feature.Vector(
+  new OpenLayers.Geometry.Polygon([linearRing]), attributes);
+
+  //Clounter-clockwise, Angle to be clarified, right now it makes it straight
+  polygonFeature.geometry.rotate(-90, point);
+
+  //polygonFeature.geometry.rotate(targetObject.shapeAngle, point);
+  return polygonFeature;
+
+}
+
+function onPopupClose(evt) {
+  // 'this' is the popup.
+  selectControl.unselect(this.feature);
+}
+
+//show and hide layers
+function toggleControl(element) {
+  if (element.value == "impact") {
+    console.log("Show impact");
+    pilotImpactLayer.setVisibility(element.checked);
+  }
+  if (element.value == "target") {
+    targetLayer.setVisibility(element.checked);
+  }
+}
+
+function drawLegend() {
+  var pilotNameColor;
+
+  for (var prop in pilotColorMap) {
+    
+    if (pilotColorMap.hasOwnProperty(prop)) {
+      pilotNameColor = pilotColorMap[prop];
+
+      document.getElementById("pilotColorLegend").innerHTML += "<li><span style=\"background-color:" + pilotNameColor.color + ";\"></span> " + pilotNameColor.name + "</li>";
     }
-    pointList.push(pointList[0]);
-
-    var linearRing = new OpenLayers.Geometry.LinearRing(pointList);
-
-    // Centering the plane to the point 
-    var moveX = -Math.round((maxX + minX) / 2);
-    var moveY = -Math.round((maxY + minY) / 2);
-    linearRing.move(moveX, moveY);
-
-    // Resizing the plane
-    linearRing.resize(0.0000025, point);
-
-    var attributes = {
-
-      'longitude': point.x,
-      'latitude': point.y,
-      'name': targetObject.name
-
-    };
-    var polygonFeature = new OpenLayers.Feature.Vector(
-    new OpenLayers.Geometry.Polygon([linearRing]), attributes);
-
-    //Clounter-clockwise, Angle to be clarified, right now it makes it straight
-    polygonFeature.geometry.rotate(-90, point);
-
-    //polygonFeature.geometry.rotate(targetObject.shapeAngle, point);
-    return polygonFeature;
-
   }
 
-  function onPopupClose(evt) {
-    // 'this' is the popup.
-    selectControl.unselect(this.feature);
-  }
-   function toggleControl(element){
-         if(element.value =="impact"){
-          console.log("Show impact");
-          pilotImpactLayer.setVisibility(element.checked);
-         }
-         if(element.value == "target"){
-          targetLayer.setVisibility(element.checked);
-         }
-        }
 
-  function drawLegend()
-  {
-    var pilotNameColor;
-
-    for (var prop in pilotColorMap) {
-      // important check that this is objects own property 
-      // not from prototype prop inherited
-      if(pilotColorMap.hasOwnProperty(prop)){
-        pilotNameColor=  pilotColorMap[prop];
-
-          document.getElementById("pilotColorLegend").innerHTML+="<li><span style=\"background-color:"+pilotNameColor.color+";\"></span> "+pilotNameColor.name+"</li>";
-      }
-   }
-
-
-
-
-
-  }
+}
