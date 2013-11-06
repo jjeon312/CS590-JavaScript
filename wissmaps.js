@@ -75,7 +75,23 @@ var targetObjects = [{
 
 
 
-
+// The callback function when mouse moves over map 
+var onMouseMove = function(e) { 
+        // "this" refers to OL Map object 
+        var lonLat = this.getLonLatFromPixel(e.xy); 
+         
+        if (!lonLat) { 
+                return; 
+        } 
+        
+        /* 
+        if (this.displayProjection) { 
+                lonLat.transform(this.getProjectionObject(), this.displayProjection); 
+        } 
+         */
+         console.log(lonLat.lon);
+       document.getElementById("LongLatDisplay").innerHTML=lonLat.lon.toFixed(4)+","+lonLat.lat.toFixed(4);
+}; 
 
 
 
@@ -160,6 +176,7 @@ function loadmap() {
   var map = new OpenLayers.Map('wissmap', options);
 
 
+map.events.register("mousemove", map, onMouseMove); 
   //tms - tile mapping system
   //using TMS because we cannot, cannot use an external API that connects to the internet .... like Google maps
   var tms = new OpenLayers.Layer.TMS('Aerial', 'output/', {
