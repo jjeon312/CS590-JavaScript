@@ -40,3 +40,8 @@ Shapes:
 	-shapeID
 	
 	-coords
+-----------------------------------------------------------------------
+
+Angle Rotation: 
+
+From North, rotate clockwise
