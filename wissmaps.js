@@ -25,7 +25,28 @@ var pilotObjects = [{
   "impactYValues": [29.118087, 29.119, 29.120, 29.135575, 29.114774, 29.093696],
   "color": "#7CFC00"
 
+},
+
+{
+
+  "pilotId": 2,
+  "name": "Kwok Tam The Not-So-Good Pilot",
+  "impactXValues": [-81.7140, -81.7125, -81.7175],
+  "impactYValues": [29.1222, 29.1197, 29.1199],
+  "color": "#FF69B4"
+
+},
+
+{
+
+  "pilotId": 3,
+  "name": "Cydney The Ruthless Bomber",
+  "impactXValues": [-81.7182, -81.7107, -81.7025, -81.7152, -81.7246, -81.7203, -81.7298],
+  "impactYValues": [29.1277, 29.1255, 29.1226, 29.1141, 29.1118, 29.1165, 29.1211],
+  "color": "#FFFF00"
+
 }
+
 
 
 ];
