@@ -194,15 +194,16 @@ function loadmap() {
   };
 
   //name of div + options above
-  var map = new OpenLayers.Map('wissmap', options);
+  map = new OpenLayers.Map('wissmap', options);
 
 
 map.events.register("mousemove", map, onMouseMove); 
   //tms - tile mapping system
   //using TMS because we cannot, cannot use an external API that connects to the internet .... like Google maps
   var tms = new OpenLayers.Layer.TMS('Aerial', 'output/', {
+	
     type: 'png',
-    getURL: get_my_url
+	getURL: get_my_url
   });
 
 
@@ -448,7 +449,21 @@ function returnPolygonFeature(point, targetObject) {
   return polygonFeature;
 
 }
+function printMap()
+{
 
+
+map.getLayersByName('Aerial')[0].setVisibility(false);
+var prtContent = document.getElementById("wissmap");
+
+var WinPrint = window.open('', '', 'letf=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
+WinPrint.document.write(prtContent.innerHTML);
+WinPrint.document.close();
+WinPrint.focus();
+WinPrint.print();
+WinPrint.close();
+map.getLayersByName('Aerial')[0].setVisibility(true);
+}
 function onPopupClose(evt) {
   // 'this' is the popup.
   selectControl.unselect(this.feature);
