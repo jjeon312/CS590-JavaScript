@@ -96,23 +96,23 @@ var targetObjects = [{
 
 
 
-// The callback function when mouse moves over map 
-var onMouseMove = function(e) { 
-        // "this" refers to OL Map object 
-        var lonLat = this.getLonLatFromPixel(e.xy); 
-         
-        if (!lonLat) { 
-                return; 
-        } 
-        
-        /* 
-        if (this.displayProjection) { 
-                lonLat.transform(this.getProjectionObject(), this.displayProjection); 
-        } 
+// The callback function when mouse moves over map
+var onMouseMove = function(e) {
+        // "this" refers to OL Map object
+        var lonLat = this.getLonLatFromPixel(e.xy);
+
+        if (!lonLat) {
+                return;
+        }
+
+        /*
+        if (this.displayProjection) {
+                lonLat.transform(this.getProjectionObject(), this.displayProjection);
+        }
          */
-         console.log(lonLat.lon);
+        // console.log(lonLat.lon);
        document.getElementById("LongLatDisplay").innerHTML=lonLat.lon.toFixed(4)+","+lonLat.lat.toFixed(4);
-}; 
+};
 
 
 
@@ -197,11 +197,11 @@ function loadmap() {
   map = new OpenLayers.Map('wissmap', options);
 
 
-map.events.register("mousemove", map, onMouseMove); 
+map.events.register("mousemove", map, onMouseMove);
   //tms - tile mapping system
   //using TMS because we cannot, cannot use an external API that connects to the internet .... like Google maps
   var tms = new OpenLayers.Layer.TMS('Aerial', 'output/', {
-	
+
     type: 'png',
 	getURL: get_my_url
   });
@@ -224,7 +224,7 @@ map.events.register("mousemove", map, onMouseMove);
     toCenter = top - centerLat;
   }
 
-  
+
 //Layer for pilot
   pilotImpactLayer = new OpenLayers.Layer.Vector("Impacts", {
 
@@ -232,10 +232,37 @@ map.events.register("mousemove", map, onMouseMove);
     styleMap: styleMap,
     visibility: false,
 
-  }
+    eventListeners: {
 
+      'featureselected': function(evt) {
+        var feature = evt.feature;
 
-  );
+        var popup = new OpenLayers.Popup.FramedCloud("popup", feature.geometry.getBounds().getCenterLonLat(),
+        //new OpenLayers.LonLat(feature.attributes.longitude, feature.attributes.latitude),
+        null, "<div style='font-size:.8em'>Pilot Name: "
+         + feature.attributes.name + "<br>bomb-id: "
+         + feature.attributes.bombId + "<br>pass-id "
+         + feature.attributes.passId + "<br>distance "
+         + feature.attributes.distance
+         + "</div>", null, true, onPopupClose);
+
+        feature.popup = popup;
+        popup.feature = feature;
+        map.addPopup(popup);
+      },
+      'featureunselected': function(evt) {
+
+        feature = evt.feature;
+        if (feature.popup) {
+          popup.feature = null;
+          map.removePopup(feature.popup);
+          feature.popup.destroy();
+          feature.popup = null;
+        }
+      }
+
+      }
+});
 
   targetLayer = new OpenLayers.Layer.Vector("Targets", {
        //Event listener for feature selection
@@ -262,8 +289,8 @@ map.events.register("mousemove", map, onMouseMove);
         }
       }
 
+      }
 
-    }
   });
 
 
@@ -309,6 +336,7 @@ map.events.register("mousemove", map, onMouseMove);
 
 //Create Select control for target layer
   selectControl = new OpenLayers.Control.SelectFeature(targetLayer);
+  selectControlBomb = new OpenLayers.Control.SelectFeature(pilotImpactLayer);
 
 
   //Pilot Impact point geometries
@@ -349,8 +377,12 @@ map.events.register("mousemove", map, onMouseMove);
 
 //Attributes used for style mapping
       var attributes = {
+        'name': currentPilot.name,
+        'pilotId': currentPilot.pilotId,
+        'passId': Math.floor((Math.random()*10)+1),
+        'distance': (Math.random()*100)+1,
+        'bombId': Math.floor((Math.random()*5)+1)
 
-        'pilotId': currentPilot.pilotId
       };
 
       var polygonImpactFeature = new OpenLayers.Feature.Vector(pointGeometry, attributes);
@@ -373,7 +405,8 @@ map.events.register("mousemove", map, onMouseMove);
 
   map.addControl(selectControl);
   selectControl.activate();
-
+  map.addControl(selectControlBomb);
+  selectControlBomb.activate();
 
   map.setCenter([centerLon, centerLat], 2);
 
@@ -424,7 +457,7 @@ function returnPolygonFeature(point, targetObject) {
 
   var linearRing = new OpenLayers.Geometry.LinearRing(pointList);
 
-  // Centering the plane to the point 
+  // Centering the plane to the point
   var moveX = -Math.round((maxX + minX) / 2);
   var moveY = -Math.round((maxY + minY) / 2);
   linearRing.move(moveX, moveY);
@@ -484,7 +517,7 @@ function drawLegend() {
   var pilotNameColor;
 
   for (var prop in pilotColorMap) {
-    
+
     if (pilotColorMap.hasOwnProperty(prop)) {
       pilotNameColor = pilotColorMap[prop];
 
